@@ -1,0 +1,11 @@
+spec:
+  template:
+    spec:
+      containers:
+        - name: taskboard
+          readinessProbe:
+            httpGet:
+              path: /ready-typo
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5

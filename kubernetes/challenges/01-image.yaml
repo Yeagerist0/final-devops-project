@@ -1,0 +1,6 @@
+spec:
+  template:
+    spec:
+      containers:
+        - name: taskboard
+          image: ghcr.io/yeagerist0/final-devops-project:tag-does-not-exist

@@ -1,0 +1,30 @@
+replicaCount: 1
+image:
+  repository: ghcr.io/yeagerist0/final-devops-project
+  tag: latest
+  pullPolicy: Always
+greeting: Session 21 DevOps Lab
+auth:
+  existingSecret: taskboard-auth
+  key: API_TOKEN
+storage:
+  size: 1Gi
+  storageClassName: ""
+service:
+  port: 80
+ingress:
+  enabled: false
+  className: nginx
+  host: taskboard.example.test
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
+hpa:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 70
