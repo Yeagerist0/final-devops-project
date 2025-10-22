@@ -1,0 +1,119 @@
+name: CI, security and GitOps delivery
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: application/go.mod
+          cache-dependency-path: application/go.mod
+      - name: Build, test and vet
+        working-directory: application
+        run: |
+          go build ./...
+          go test ./...
+          go vet ./...
+
+  sast:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: go
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: application/go.mod
+          cache-dependency-path: application/go.mod
+      - name: Compile for CodeQL
+        working-directory: application
+        run: go build ./...
+      - name: Gate high-severity Go findings
+        working-directory: application
+        run: go run github.com/securego/gosec/v2/cmd/gosec@v2.29.0 -severity high -confidence high ./...
+      - uses: github/codeql-action/analyze@v4
+
+  sca:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Scan dependencies
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: application
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build_scan_push:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [test, sast, sca, secrets]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build Docker image
+        run: docker build -f docker/Dockerfile -t ghcr.io/yeagerist0/final-devops-project:${GITHUB_SHA} .
+      - name: Scan final image
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: ghcr.io/yeagerist0/final-devops-project:${{ github.sha }}
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push immutable and latest tags
+        run: |
+          docker push ghcr.io/yeagerist0/final-devops-project:${GITHUB_SHA}
+          docker tag ghcr.io/yeagerist0/final-devops-project:${GITHUB_SHA} ghcr.io/yeagerist0/final-devops-project:latest
+          docker push ghcr.io/yeagerist0/final-devops-project:latest
+
+  deploy_gitops:
+    needs: build_scan_push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: true
+      - name: Update desired Kubernetes image
+        run: |
+          sed -i "s#  tag: .*#  tag: ${GITHUB_SHA}#" helm/taskboard/values.yaml
+          git config user.name Yeagerist0
+          git config user.email 180412661+Yeagerist0@users.noreply.github.com
+          git add helm/taskboard/values.yaml
+          git diff --cached --quiet || git commit -m "deploy: use image ${GITHUB_SHA}"
+          git push

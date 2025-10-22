@@ -1,0 +1,10 @@
+spec:
+  template:
+    spec:
+      containers:
+        - name: taskboard
+          envFrom:
+            - configMapRef:
+                name: taskboard-config-missing
+            - secretRef:
+                name: taskboard-auth
