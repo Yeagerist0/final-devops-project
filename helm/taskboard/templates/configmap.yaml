@@ -4,4 +4,6 @@ metadata:
   name: {{ .Release.Name }}-config
 data:
   GREETING: {{ .Values.greeting | quote }}
-  DATA_FILE: /data/tasks.json
+  DB_HOST: {{ .Release.Name }}-postgres
+  DB_USER: {{ .Values.postgres.username | quote }}
+  DB_NAME: {{ .Values.postgres.database | quote }}

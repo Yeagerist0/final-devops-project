@@ -44,7 +44,11 @@ func TestTaskLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := loaded.list(); len(got) != 1 || got[0].Title != "first" {
+	got, err := loaded.list()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0].Title != "first" {
 		t.Fatalf("persisted tasks: %+v", got)
 	}
 	response := request("GET", "/api/tasks", "", "")
@@ -59,5 +63,17 @@ func TestTaskLifecycle(t *testing.T) {
 	}
 	if body := request("GET", "/metrics", "", "").Body.String(); !strings.Contains(body, "app_tasks_stored 1") {
 		t.Fatal(body)
+	}
+	if got := request("PUT", "/api/tasks/1", "test-token", `{"title":"updated","done":true}`).Code; got != http.StatusOK {
+		t.Fatalf("update: %d", got)
+	}
+	if body := request("GET", "/api/tasks/stats", "", "").Body.String(); !strings.Contains(body, `"completed":1`) {
+		t.Fatal(body)
+	}
+	if got := request("DELETE", "/api/tasks/1", "test-token", "").Code; got != http.StatusNoContent {
+		t.Fatalf("delete: %d", got)
+	}
+	if got := request("DELETE", "/api/tasks/1", "test-token", "").Code; got != http.StatusNotFound {
+		t.Fatalf("missing delete: %d", got)
 	}
 }
