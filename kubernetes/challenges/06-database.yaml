@@ -1,0 +1,5 @@
+data:
+  GREETING: "Session 21 DevOps Lab"
+  DB_HOST: "postgres-missing"
+  DB_USER: "taskboard"
+  DB_NAME: "taskboard"

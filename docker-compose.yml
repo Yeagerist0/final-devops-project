@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: taskboard
+      POSTGRES_USER: taskboard
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-local-db-password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskboard"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  taskboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_USER: taskboard
+      DB_NAME: taskboard
+      DB_PASSWORD: ${DB_PASSWORD:-local-db-password}
+      API_TOKEN: ${API_TOKEN:-local-demo-token}
+      GREETING: Session 21 DevOps Lab
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
