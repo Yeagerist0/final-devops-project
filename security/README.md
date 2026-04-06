@@ -4,7 +4,7 @@
 
 | Gate | Tool | Failure condition |
 | --- | --- | --- |
-| SAST | Gosec and GitHub CodeQL for Go | Gosec high-severity/high-confidence finding; CodeQL results appear in Security tab |
+| SAST | Go vet and GitHub CodeQL for Go | Vet error; CodeQL results appear in Security tab |
 | SCA | Trivy filesystem scan | HIGH or CRITICAL dependency vulnerability |
 | Frontend SCA | npm audit | HIGH or CRITICAL npm vulnerability |
 | Secret scan | Gitleaks | A credential is detected in Git history |

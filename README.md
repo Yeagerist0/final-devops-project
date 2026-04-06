@@ -24,7 +24,7 @@ flowchart LR
 
 ## Technologies and layout
 
-React, Vite, Go, pgx, PostgreSQL, Git/GitHub, GitHub Actions, CodeQL, Gosec, Gitleaks, Trivy, Docker Compose, GHCR, Terraform, AWS VPC/EKS, Kubernetes, Helm, Prometheus, Grafana and Argo CD.
+React, Vite, Go, pgx, PostgreSQL, Git/GitHub, GitHub Actions, CodeQL, Go vet, Gitleaks, Trivy, Docker Compose, GHCR, Terraform, AWS VPC/EKS, Kubernetes, Helm, Prometheus, Grafana and Argo CD.
 
 | Directory | Purpose |
 | --- | --- |
@@ -138,7 +138,7 @@ Review the plan and region/version before `apply`. Run `terraform destroy` from 
 
 ## CI/CD pipeline and DevSecOps
 
-`.github/workflows/ci-cd.yml` runs on pull requests and `main` pushes. Go tests, React build, npm audit, Helm lint/render, Terraform validation, Gosec SAST, CodeQL analysis, Trivy filesystem SCA and Gitleaks history scanning must all pass. Gosec fails on high-severity/high-confidence findings; CodeQL alerts require a code scanning ruleset to act as a PR gate. On `main`, the pipeline builds the Docker image, blocks HIGH/CRITICAL image findings, pushes immutable SHA and `latest` tags to GHCR, then commits that SHA into Helm values. Argo CD sees the Helm commit and deploys it. This is the Kubernetes deployment step: CI changes desired state; Argo CD performs cluster reconciliation. No cluster credentials are stored in GitHub Actions.
+`.github/workflows/ci-cd.yml` runs on pull requests and `main` pushes. Go tests and vet, React build, npm audit, Helm lint/render, Terraform validation, CodeQL SAST, Trivy filesystem SCA and Gitleaks history scanning must all pass. CodeQL alerts require a code scanning ruleset to act as a PR gate; Go vet fails the build for static-analysis errors. On `main`, the pipeline builds the Docker image, blocks HIGH/CRITICAL image findings, pushes immutable SHA and `latest` tags to GHCR, then commits that SHA into Helm values. Argo CD sees the Helm commit and deploys it. This is the Kubernetes deployment step: CI changes desired state; Argo CD performs cluster reconciliation. No cluster credentials are stored in GitHub Actions.
 
 The GitOps commit is authored as `Yeagerist0 <180412661+Yeagerist0@users.noreply.github.com>`. GitHub Actions still appears as the push actor. To enforce gates, mark `test`, `manifests`, `terraform`, `sast`, `sca` and `secrets` as required checks in branch protection. If branch protection blocks bot writes to `main`, configure a deployment branch or a reviewed pull request for Helm value changes. See [`security/README.md`](security/README.md) for details.
 
