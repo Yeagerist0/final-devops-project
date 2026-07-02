@@ -6,8 +6,6 @@ spec:
   {{- if not .Values.hpa.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       app: {{ .Release.Name }}
@@ -23,7 +21,6 @@ spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532
-        fsGroup: 65532
       containers:
         - name: taskboard
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -40,9 +37,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.auth.existingSecret }}
                   key: {{ .Values.auth.key }}
-          volumeMounts:
-            - name: data
-              mountPath: /data
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.databaseKey }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           readinessProbe:
@@ -62,7 +61,3 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: [ALL]
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-data
