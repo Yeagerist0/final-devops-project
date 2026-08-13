@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Session 21 demo slides</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+    body{font-family:Arial,Helvetica,sans-serif;background:#0b1224;color:#f3f6ff}
+    #slide{width:100vw;height:100vh;padding:54px 72px;position:relative;background:radial-gradient(circle at 85% 8%,#213b70 0,#101d39 32%,#0b1224 68%)}
+    .eyebrow{color:#8ea8ff;text-transform:uppercase;letter-spacing:4px;font-weight:800;font-size:17px}
+    h1{font-size:66px;line-height:1.08;margin:22px 0 20px;max-width:1020px}
+    h2{font-size:45px;line-height:1.12;margin:14px 0 22px}
+    p{font-size:25px;line-height:1.4;color:#c6d3ec;margin:12px 0}
+    .accent{color:#8fa5ff}.green{color:#5ce0ad}.yellow{color:#ffd37a}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:19px;margin-top:25px}
+    .grid.three{grid-template-columns:repeat(3,1fr)}
+    .card{border:1px solid #3a4b6c;background:#172543;border-radius:18px;padding:23px;min-height:135px}
+    .card strong{display:block;font-size:25px;margin-bottom:9px}.card span{font-size:19px;color:#b9c8e4;line-height:1.35}
+    .pill{display:inline-block;border:1px solid #5267a7;border-radius:999px;padding:10px 16px;margin:5px;color:#d9e2ff;font-size:19px;background:#24345c}
+    .flow{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:32px 0}
+    .node{background:#1d3155;border:1px solid #526ba7;border-radius:14px;padding:17px 20px;font-weight:700;font-size:22px}
+    .arrow{color:#75d4ff;font-size:30px}
+    .shot{border:5px solid #6c84d3;border-radius:16px;box-shadow:0 20px 60px #0008;width:720px;height:auto}
+    .split{display:grid;grid-template-columns:730px 1fr;gap:30px;align-items:center;margin-top:20px}
+    .code{font-family:monospace;font-size:21px;color:#a8e6ca;background:#111b32;border:1px solid #385070;border-radius:12px;padding:18px;margin:8px 0}
+    .footer{position:absolute;left:72px;bottom:28px;color:#8b9cbc;font-size:17px}
+    .number{position:absolute;right:72px;bottom:28px;color:#8b9cbc;font-size:17px}
+    .huge{font-size:97px;font-weight:900;margin:12px 0;color:#5ce0ad}
+    .small{font-size:19px}
+  </style>
+</head>
+<body>
+<main id="slide"></main>
+<script>
+const slides = [
+`<div class="eyebrow">Session 21 • Final DevOps Project</div><h1>From code to <span class="accent">Kubernetes</span></h1><p>A complete, security-gated task board delivery pipeline.</p><div class="flow"><span class="node">React + Go</span><span class="arrow">→</span><span class="node">PostgreSQL</span><span class="arrow">→</span><span class="node">GitHub Actions</span><span class="arrow">→</span><span class="node">GHCR + Helm</span><span class="arrow">→</span><span class="node">Argo CD</span></div><p class="yellow">github.com/Yeagerist0/final-devops-project</p>`,
+`<div class="eyebrow">01 / Architecture</div><h2>End-to-end delivery path</h2><div class="grid three"><div class="card"><strong>Application</strong><span>Responsive React dashboard, Go REST API and persistent PostgreSQL data.</span></div><div class="card"><strong>Continuous integration</strong><span>Go tests, React build, Helm rendering and Terraform validation.</span></div><div class="card"><strong>DevSecOps</strong><span>CodeQL, Go vet, npm audit, Trivy SCA/image scan and Gitleaks.</span></div><div class="card"><strong>Image & registry</strong><span>Multi-stage non-root Docker image pushed to public GHCR.</span></div><div class="card"><strong>Infrastructure</strong><span>Terraform provisions AWS VPC, EKS, node group and EBS CSI.</span></div><div class="card"><strong>Deployment</strong><span>GitOps commit updates Helm image SHA; Argo CD reconciles Kubernetes.</span></div></div>`,
+`<div class="eyebrow">02 / Working application</div><h2>Task board and REST API</h2><div class="split"><img class="shot" src="../screenshots/taskboard-local.png" alt="Task board screenshot"><div><p>Tasks are stored in PostgreSQL in Compose and Kubernetes.</p><div class="code">GET /api/tasks</div><div class="code">POST /api/tasks</div><div class="code">PUT /api/tasks/{id}</div><div class="code">DELETE /api/tasks/{id}</div><p class="small">Also: health, readiness, stats and Prometheus metrics endpoints.</p></div></div>`,
+`<div class="eyebrow">03 / Verified GitHub Actions</div><h2>All <span class="green">8 jobs passed</span></h2><div class="grid"><div class="card"><strong>✓ test</strong><span>Go build/test/vet, React build, npm audit</span></div><div class="card"><strong>✓ manifests + terraform</strong><span>Helm lint/render; Terraform format/init/validate</span></div><div class="card"><strong>✓ sast + sca + secrets</strong><span>CodeQL, vet, Trivy and Gitleaks</span></div><div class="card"><strong>✓ build_scan_push + deploy_gitops</strong><span>Secure image published; Helm desired state updated</span></div></div><p class="yellow small">actions/runs/38933948746 • immutable image tag 32fe684...</p>`,
+`<div class="eyebrow">04 / Infrastructure & Kubernetes</div><h2>Reproducible cluster delivery</h2><div class="grid"><div class="card"><strong>Terraform</strong><span>Two-AZ VPC, public/private subnets, NAT, managed EKS nodes and storage driver.</span></div><div class="card"><strong>Kubernetes resources</strong><span>Deployment, Service, ConfigMap, Secret, Ingress, HPA, probes and PostgreSQL PVC.</span></div><div class="card"><strong>Helm</strong><span>Templated release with resource defaults and SHA-pinned application image.</span></div><div class="card"><strong>Autoscaling</strong><span>Stateless API scales from two to four replicas; database stays persistent.</span></div></div><p class="small yellow">Cloud apply is intentionally documented, not run automatically: AWS resources incur cost.</p>`,
+`<div class="eyebrow">05 / Monitoring & GitOps</div><h2>Observe and reconcile</h2><div class="flow"><span class="node">CI image push</span><span class="arrow">→</span><span class="node">Helm SHA commit</span><span class="arrow">→</span><span class="node">Argo CD sync</span><span class="arrow">→</span><span class="node">EKS</span></div><div class="grid"><div class="card"><strong>Prometheus</strong><span>Scrapes /metrics: requests, tasks created and tasks stored.</span></div><div class="card"><strong>Grafana</strong><span>Pre-provisioned Prometheus data source and dashboard-ready metrics.</span></div><div class="card"><strong>Troubleshooting</strong><span>kubectl logs, describe, events, endpoints and readiness checks.</span></div><div class="card"><strong>Secure delivery</strong><span>No cluster credentials in CI; Git is the desired-state source.</span></div></div>`,
+`<div class="eyebrow">06 / Final challenge</div><h2>Six broken deployments to debug</h2><div class="grid three"><div class="card"><strong>01</strong><span>Wrong image tag</span></div><div class="card"><strong>02</strong><span>Missing ConfigMap</span></div><div class="card"><strong>03</strong><span>Bad readiness path</span></div><div class="card"><strong>04</strong><span>Service selector mismatch</span></div><div class="card"><strong>05</strong><span>Missing Secret</span></div><div class="card"><strong>06</strong><span>Wrong database DNS</span></div></div><p>Identify → investigate → fix → verify → document.</p>`,
+`<div class="eyebrow">07 / Submission</div><h2>Everything is in the repository</h2><div class="huge">✓</div><p>Application • Docker • Kubernetes • Helm • Terraform • CI/CD<br>Security • Monitoring • GitOps • Troubleshooting • README</p><p class="yellow">github.com/Yeagerist0/final-devops-project</p><p class="small">All Git commits authored as Yeagerist0. GHCR package is public.</p>`
+];
+const index = Math.max(0, Math.min(slides.length-1, Number(new URLSearchParams(location.search).get('slide')||0)));
+document.querySelector('#slide').innerHTML = slides[index] + `<div class="footer">Session 21 • Final DevOps Project</div><div class="number">${index+1} / ${slides.length}</div>`;
+</script>
+</body>
+</html>
