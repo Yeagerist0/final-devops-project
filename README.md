@@ -183,7 +183,9 @@ Six isolated broken-resource patches are in [`kubernetes/challenges/`](kubernete
 
 ## Screenshots
 
-The local React application screenshot is in [`screenshots/taskboard-local.png`](screenshots/taskboard-local.png). The [successful eight-job CI run](https://github.com/Yeagerist0/final-devops-project/actions/runs/38933948746) and [public GHCR package](https://github.com/users/Yeagerist0/packages/container/package/final-devops-project) are live evidence. Capture Argo CD sync and Prometheus query screenshots after deploying to your own cluster; no paid AWS cluster was started for this repository-only submission.
+![React task board running locally](screenshots/taskboard-local.png)
+
+The [successful eight-job CI run](https://github.com/Yeagerist0/final-devops-project/actions/runs/38933948746) and [public GHCR package](https://github.com/users/Yeagerist0/packages/container/package/final-devops-project) are live evidence. Capture Argo CD sync and Prometheus query screenshots after deploying to your own cluster; no paid AWS cluster was started for this repository-only submission.
 
 ## Submission video
 
