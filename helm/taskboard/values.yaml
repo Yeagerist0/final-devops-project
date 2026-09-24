@@ -1,7 +1,7 @@
 replicaCount: 2
 image:
   repository: ghcr.io/yeagerist0/final-devops-project
-  tag: 32fe684206ca12270444c188163061882d70e0b0
+  tag: a2a31d7c58da10bbec398650e531e0910649c5ca
   pullPolicy: Always
 greeting: Session 21 DevOps Lab
 auth:
